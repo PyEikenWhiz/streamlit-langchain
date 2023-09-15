@@ -1,5 +1,3 @@
 streamlit
 transformers
 langchain.llms
-Torch 
-PyTorch
