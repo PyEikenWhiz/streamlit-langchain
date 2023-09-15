@@ -3,7 +3,7 @@ import streamlit as st
 from langchain import HuggingFacePipeline
 
 # Function to load the language model
-@st.cache_resource 
+#@st.cache_resource 
 def load_language_model():
     return HuggingFacePipeline.from_model_id(model_id="gpt2", task="text-generation")
 
