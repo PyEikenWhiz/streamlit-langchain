@@ -1,13 +1,17 @@
-from transformers import pipeline
+# Import necessary libraries
 import streamlit as st
+from langchain.llms import HuggingFacePipeline
 
-@st.cache_resource  # 👈 Add the caching decorator
-def load_model():
-    return pipeline("sentiment-analysis")
+# Function to load the language model
+#@st.cache_resource 
+def load_language_model():
+    return HuggingFacePipeline.from_model_id(model_id="gpt2", task="text-generation")
 
-model = load_model()
+# Display a loading spinner
+with st.spinner('Please wait...'):
+    # Load the language model
+    language_model = load_language_model()
+    st.write("Done!")
 
-query = st.text_input("Your query", value="I love Streamlit! 🎈")
-if query:
-    result = model(query)[0]  # 👈 Classify the query text
-    st.write(result)
+# Generate and display text
+st.write(language_model("Once upon a time, "))
