@@ -1,5 +1,6 @@
 streamlit
 transformers
 langchain
-huggingface
-langchain.llms
+torch
+#huggingface
+#langchain.llms
