@@ -1,6 +1,6 @@
 # Import necessary libraries
 import streamlit as st
-from langchain import HuggingFacePipeline
+from langchain.llms import HuggingFacePipeline
 
 # Function to load the language model
 #@st.cache_resource 
