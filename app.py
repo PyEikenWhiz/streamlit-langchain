@@ -1,4 +1,5 @@
 from transformers import pipeline
+import streamlit as st
 
 @st.cache_resource  # 👈 Add the caching decorator
 def load_model():
