@@ -1,24 +1,20 @@
-# Import necessary libraries
+#!pip install langchain !pip install youtube-transcript-api
+# Install the necessary libraries
+
+# Import the required module
+from langchain.document_loaders import YoutubeLoader #class langchain.document_loaders.youtube.YoutubeLoader(video_id: str, add_video_info: bool = False, language: Union[str, Sequence[str]] = 'en', translation: str = 'en', continue_on_failure: bool = False)[source] #Methods :from_youtube_url(youtube_url, **kwargs)
 import streamlit as st
-from langchain import HuggingFacePipeline
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
-# Function to load the language model
-@st.cache_resource
-def load_language_model():
-    tokenizer = AutoTokenizer.from_pretrained("rinna/japanese-gpt2-small", use_fast=False)
-    tokenizer.do_lower_case = True  # due to some bug of tokenizer config loading
-    model = AutoModelForCausalLM.from_pretrained("rinna/japanese-gpt2-small")
-    pipe = pipeline("text-generation", model=model, tokenizer=tokenizer, max_new_tokens=64)
-    llm = HuggingFacePipeline(pipeline=pipe)
-    return llm
-    #return HuggingFacePipeline.from_model_id(model_id="rinna/japanese-gpt2-small", task="text-generation")
+# Set the URL for the YouTube video whose transcript you want to load
+youtube_url = "https://www.youtube.com/shorts/CXT3iCzuODQ"
 
-# Display a loading spinner
-with st.spinner('Please wait...'):
-    # Load the language model
-    language_model = load_language_model()
-    st.write("Done!")
+# Create a YoutubeLoader object to load the transcript from the provided URL in Japanese language
+loader = YoutubeLoader.from_youtube_url(youtube_url, language="ja") #loader = YoutubeLoader.from_youtube_url(youtube_url, language="ja", add_video_info=True)
 
-# Generate and display text
-st.write(language_model("生命、宇宙、そして万物についての究極の疑問の答えは, ", num_return_sequences=6))
+# Load the transcript content of the YouTube video
+docs = loader.load()
+
+# Display the loaded transcript content
+print(docs) #docs
+
+st.write("Docs :",docs)
