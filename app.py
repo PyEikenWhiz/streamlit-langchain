@@ -1,20 +1,20 @@
-#!pip install langchain !pip install youtube-transcript-api
-# Install the necessary libraries
-
+# Install the necessary libraries !pip install langchain pypdf
 # Import the required module
-from langchain.document_loaders import YoutubeLoader #class langchain.document_loaders.youtube.YoutubeLoader(video_id: str, add_video_info: bool = False, language: Union[str, Sequence[str]] = 'en', translation: str = 'en', continue_on_failure: bool = False)[source] #Methods :from_youtube_url(youtube_url, **kwargs)
+from langchain.document_loaders import PyPDFLoader #class langchain.document_loaders.pdf.PyPDFLoader(file_path: str, password: Optional[Union[str, bytes]] = None)
 import streamlit as st
 
-# Set the URL for the YouTube video whose transcript you want to load
-youtube_url = "https://www.youtube.com/shorts/CXT3iCzuODQ"
+# Set the URL for the PDF document to load
+pdf_url = "https://di-acc2.com/wp-content/uploads/2023/06/tokyo_travel.pdf" # Set the query for the information you want to find in the document #query = "Tell me about Tokyo's famous sightseeing spot, 'Tokyo Skytree'."
 
-# Create a YoutubeLoader object to load the transcript from the provided URL in Japanese language
-loader = YoutubeLoader.from_youtube_url(youtube_url, language="ja") #loader = YoutubeLoader.from_youtube_url(youtube_url, language="ja", add_video_info=True)
+# Create a PyPDFLoader object to load the PDF document from the provided URL
+pdf_loader = PyPDFLoader(pdf_url)
 
-# Load the transcript content of the YouTube video
-docs = loader.load()
+# Load the content of the PDF document
+results = pdf_loader.load()
 
-# Display the loaded transcript content
-print(docs) #docs
+# Display the results, which contain information from the PDF document related to the query #print(results)
+#print("Pages :",len(results))
+#print("results[2] :",results[2].page_content) #results
 
-st.write("Docs :",docs)
+st.write("Pages :",len(results))
+st.write("results[2] :",results[2].page_content)
