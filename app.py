@@ -1,16 +1,11 @@
 # Import necessary libraries
 import streamlit as st
 from langchain import HuggingFacePipeline
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
 # Function to load the language model
 @st.cache_resource
 def load_language_model():
-    model_id = "gpt2"
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
-    model = AutoModelForCausalLM.from_pretrained(model_id)
-    pipe = pipeline("text-generation", model=model, tokenizer=tokenizer, max_new_tokens=64)
-    return HuggingFacePipeline(pipeline=pipe)
+    return HuggingFacePipeline.from_model_id(model_id="rinna/japanese-gpt2-small", task="text-generation")
 
 # Display a loading spinner
 with st.spinner('Please wait...'):
@@ -19,4 +14,4 @@ with st.spinner('Please wait...'):
     st.write("Done!")
 
 # Generate and display text
-st.write(language_model("Once upon a time, "))
+st.write(language_model("生命、宇宙、そして万物についての究極の疑問の答えは, ", num_return_sequences=6))
