@@ -1,15 +1,16 @@
 # Import necessary libraries
 import streamlit as st
 from langchain import HuggingFacePipeline
-
-# Create a Streamlit app
-st.title("Text Generation with GPT-2")
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
 # Function to load the language model
 @st.cache_resource
 def load_language_model():
-    language_model = HuggingFacePipeline.from_model_id(model_id="gpt2", task="text-generation")
-    return language_model
+    model_id = "gpt2"
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    model = AutoModelForCausalLM.from_pretrained(model_id)
+    pipe = pipeline("text-generation", model=model, tokenizer=tokenizer, max_new_tokens=64)
+    return HuggingFacePipeline(pipeline=pipe)
 
 # Display a loading spinner
 with st.spinner('Please wait...'):
@@ -17,11 +18,5 @@ with st.spinner('Please wait...'):
     language_model = load_language_model()
     st.write("Done!")
 
-# User input for text generation
-user_input = st.text_input("Enter a starting phrase:", "Once upon a time,")
-
-# Generate and display text based on user input
-if user_input:
-    generated_text = language_model(user_input)
-    st.write("Generated text:")
-    st.write(generated_text)
+# Generate and display text
+st.write(language_model("Once upon a time, "))
