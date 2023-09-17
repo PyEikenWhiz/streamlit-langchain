@@ -1,20 +1,39 @@
-# Install the necessary libraries !pip install langchain pypdf
-# Import the required module
-from langchain.document_loaders import PyPDFLoader #class langchain.document_loaders.pdf.PyPDFLoader(file_path: str, password: Optional[Union[str, bytes]] = None)
-import streamlit as st
+# Import necessary libraries
+import streamlit as st  # Import the Streamlit library for building web apps
+from langchain import HuggingFacePipeline  # Import the language model library
+import time  # Import the time module to measure execution time
 
-# Set the URL for the PDF document to load
-pdf_url = "https://di-acc2.com/wp-content/uploads/2023/06/tokyo_travel.pdf" # Set the query for the information you want to find in the document #query = "Tell me about Tokyo's famous sightseeing spot, 'Tokyo Skytree'."
+# Record the start time
+start_time = time.time()
 
-# Create a PyPDFLoader object to load the PDF document from the provided URL
-pdf_loader = PyPDFLoader(pdf_url)
+# Create a Streamlit app with a title
+st.title("Text Generation with GPT-2")
 
-# Load the content of the PDF document
-results = pdf_loader.load()
+# Function to load the language model
+#@st.cache_resource  # This decorator caches the result for better performance
+def load_language_model():
+    # Load the language model using HuggingFacePipeline
+    language_model = HuggingFacePipeline.from_model_id(model_id="gpt2", task="text-generation")
+    return language_model
 
-# Display the results, which contain information from the PDF document related to the query #print(results)
-#print("Pages :",len(results))
-#print("results[2] :",results[2].page_content) #results
+# Display a loading spinner while the language model is loaded
+with st.spinner('Please wait...'):
+    # Load the language model
+    language_model = load_language_model()
+    st.write("Done!")  # Indicate that the loading is complete
 
-st.write("Pages :",len(results))
-st.write("results[2] :",results[2].page_content)
+# User input for text generation
+user_input = st.text_input("Enter a starting phrase:", "Once upon a time,")
+
+# Generate and display text based on user input
+if user_input:
+    generated_text = language_model(user_input)  # Generate text
+    st.write("Generated text:")  # Display a label for the generated text
+    st.write(generated_text)  # Display the generated text
+
+# Record the end time
+end_time = time.time()
+
+# Calculate and display the execution time
+execution_time = end_time - start_time
+st.write(f"Execution time: {execution_time:.2f} seconds")
