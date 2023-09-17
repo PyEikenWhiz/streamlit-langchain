@@ -1,22 +1,20 @@
-# Import necessary libraries
+# Install the necessary libraries !pip install langchain pypdf
+# Import the required module
+from langchain.document_loaders import PyPDFLoader #class langchain.document_loaders.pdf.PyPDFLoader(file_path: str, password: Optional[Union[str, bytes]] = None)
 import streamlit as st
-from langchain import HuggingFacePipeline
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
-# Function to load the language model
-@st.cache_resource
-def load_language_model():
-    model_id = "gpt2"
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
-    model = AutoModelForCausalLM.from_pretrained(model_id)
-    pipe = pipeline("text-generation", model=model, tokenizer=tokenizer, max_new_tokens=64)
-    return HuggingFacePipeline(pipeline=pipe)
+# Set the URL for the PDF document to load
+pdf_url = "https://di-acc2.com/wp-content/uploads/2023/06/tokyo_travel.pdf" # Set the query for the information you want to find in the document #query = "Tell me about Tokyo's famous sightseeing spot, 'Tokyo Skytree'."
 
-# Display a loading spinner
-with st.spinner('Please wait...'):
-    # Load the language model
-    language_model = load_language_model()
-    st.write("Done!")
+# Create a PyPDFLoader object to load the PDF document from the provided URL
+pdf_loader = PyPDFLoader(pdf_url)
 
-# Generate and display text
-st.write(language_model("Once upon a time, "))
+# Load the content of the PDF document
+results = pdf_loader.load()
+
+# Display the results, which contain information from the PDF document related to the query #print(results)
+#print("Pages :",len(results))
+#print("results[2] :",results[2].page_content) #results
+
+st.write("Pages :",len(results))
+st.write("results[2] :",results[2].page_content)
