@@ -10,7 +10,7 @@ start_time = time.time()
 st.title("Text Generation with GPT-2")
 
 # Function to load the language model
-#@st.cache_resource  # This decorator caches the result for better performance
+@st.cache_resource  # This decorator caches the result for better performance
 def load_language_model():
     # Load the language model using HuggingFacePipeline
     language_model = HuggingFacePipeline.from_model_id(model_id="gpt2", task="text-generation")
