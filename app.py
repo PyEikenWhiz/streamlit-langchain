@@ -1,20 +1,32 @@
-#!pip install langchain !pip install youtube-transcript-api
-# Install the necessary libraries
-
-# Import the required module
-from langchain.document_loaders import YoutubeLoader #class langchain.document_loaders.youtube.YoutubeLoader(video_id: str, add_video_info: bool = False, language: Union[str, Sequence[str]] = 'en', translation: str = 'en', continue_on_failure: bool = False)[source] #Methods :from_youtube_url(youtube_url, **kwargs)
 import streamlit as st
 
-# Set the URL for the YouTube video whose transcript you want to load
-youtube_url = "https://www.youtube.com/shorts/CXT3iCzuODQ"
+# Import the required class #!pip install transformers
+from langchain import PromptTemplate
 
-# Create a YoutubeLoader object to load the transcript from the provided URL in Japanese language
-loader = YoutubeLoader.from_youtube_url(youtube_url, language="ja") #loader = YoutubeLoader.from_youtube_url(youtube_url, language="ja", add_video_info=True)
+# Define the template with a variable named "subject"
+template = "Tell me about {subject}"
+# Create an instance of PromptTemplate and specify the variable names using input_variables
+prompt = PromptTemplate(template=template, input_variables=["subject"])######################
+# Use the format method to replace the variable "subject" with a specific value
+prompt_text = prompt.format(subject="IT enginner")
+# Print the resulting text
+#print(prompt_text)
+st.write(prompt_text)
 
-# Load the transcript content of the YouTube video
-docs = loader.load()
+from langchain.llms import HuggingFacePipeline
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
-# Display the loaded transcript content
-print(docs) #docs
+#from LLM (HuggingFacePipeline)
+@st.cache_resource
+def load_language_model():
+    model_id = "rinna/japanese-gpt2-small"
+    tokenizer = AutoTokenizer.from_pretrained(model_id, use_fast=False)
+    tokenizer.do_lower_case = True  # due to some bug of tokenizer config loading
+    model = AutoModelForCausalLM.from_pretrained(model_id)
+    pipe = pipeline("text-generation", model=model, tokenizer=tokenizer, max_new_tokens=64)
+    llm = HuggingFacePipeline(pipeline=pipe)
+    return llm
 
-st.write("Docs :",docs)
+#print(llm(prompt_text))
+language_model = load_language_model()
+st.write(language_model(prompt_text, num_return_sequences=6))
