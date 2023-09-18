@@ -6,12 +6,7 @@ from langchain import PromptTemplate, LLMChain
 # Define the template with a variable named "subject"
 template = "Tell me about {subject}"
 # Create an instance of PromptTemplate and specify the variable names using input_variables
-prompt = PromptTemplate(template=template, input_variables=["subject"])######################
-# Use the format method to replace the variable "subject" with a specific value
-prompt_text = prompt.format(subject="IT enginner")
-# Print the resulting text
-#print(prompt_text)
-st.write("prompt: ",prompt_text)
+prompt = PromptTemplate(template=template, input_variables=["subject"])
 
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 from langchain.llms import HuggingFacePipeline
