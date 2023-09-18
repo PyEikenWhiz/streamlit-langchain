@@ -23,7 +23,7 @@ from langchain.chains import SimpleSequentialChain
 template = "Tell me about {subject}"
 # Create an instance of PromptTemplate and specify the variable names using input_variables
 prompt = PromptTemplate(template=template, input_variables=["subject"])
-st.write(prompt)
+st.write("prompt1: ",prompt)
 
 llm_chain1 = LLMChain(prompt=prompt, llm=llm)
 
@@ -31,7 +31,7 @@ llm_chain1 = LLMChain(prompt=prompt, llm=llm)
 template = "Summarize: {input}"
 # Create an instance of PromptTemplate and specify the variable names using input_variables
 prompt = PromptTemplate(template=template, input_variables=["input"])
-st.write(prompt)
+st.write("prompt2: ",prompt)
 
 llm_chain2 = LLMChain(prompt=prompt, llm=llm)
 
