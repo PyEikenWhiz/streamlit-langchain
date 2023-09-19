@@ -3,8 +3,11 @@ from langchain.vectorstores import Chroma
 from langchain.indexes import VectorstoreIndexCreator
 from langchain.document_loaders import TextLoader
 import streamlit as st
-import sqlite3
 
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+import sqlite3
 
 long_text = """
 GPT-4は、OpenAIが開発したAI技術であるGPTシリーズの第4世代目のモデルです。
