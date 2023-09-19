@@ -33,11 +33,6 @@ GPT-4は、インターネット上の大量のテキストデータを学習し
 適切な方法で利用することが重要です。
 """
 print(len(long_text))
-with open("./long_text.txt", "w") as f:
-    f.write(long_text)
-    f.close()
-
-loader = TextLoader('./long_text.txt')
 
 text_splitter = CharacterTextSplitter(
     separator = "\n\n",
@@ -46,44 +41,23 @@ text_splitter = CharacterTextSplitter(
     length_function = len,
 )
 
+texts = text_splitter.split_text(long_text)
+#print(texts)
 
 from langchain.embeddings import HuggingFaceEmbeddings
 embeddings = HuggingFaceEmbeddings(model_name="intfloat/multilingual-e5-small")
 
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
-from langchain import HuggingFacePipeline
-
-# Function to load the language model
-@st.cache_resource  # This decorator caches the result for better performance
-def load_language_model():
-    model_id = "rinna/japanese-gpt2-small"
-    tokenizer = AutoTokenizer.from_pretrained(model_id, use_fast=False)
-    tokenizer.do_lower_case = True  # due to some bug of tokenizer config loading
-    model_ = AutoModelForCausalLM.from_pretrained(model_id)
-    pipe = pipeline("text-generation", model=model_, tokenizer=tokenizer, max_new_tokens=64)
-    return HuggingFacePipeline(pipeline=pipe)
-
-model = load_language_model()
-
-index = VectorstoreIndexCreator(
-    vectorstore_cls=Chroma, # Default
-    embedding = embeddings, # Default
-    text_splitter=text_splitter,
-).from_loaders([loader])
+docsearch = Chroma.from_texts(texts, embeddings)
 
 query = "Q1. インターネット上の何のデータを使って、学習しているの？"
-#print(f"\n\n{query}")
 st.write(f"\n\n{query}")
-answer = index.query(llm=model, question=query, chain_type="refine")
-st.write(answer)
+docs = docsearch.similarity_search(query)
+print(docs[0].page_content)
+st.write(docs[0].page_content)
 
-answer_with_sources = index.query_with_sources(llm=model, question=query, chain_type="refine")
-st.write(answer_with_sources)
 
 query = "Q2. GPT4は第何世代のモデル？"
 st.write(f"\n\n{query}")
-answer = index.query(llm=model, question=query, chain_type="refine")
-st.write(answer)
-
-answer_with_sources = index.query_with_sources(llm=model, question=query, chain_type="refine")
-st.write(answer_with_sources)
+docs = docsearch.similarity_search(query)
+print(docs[0].page_content)
+st.write(docs[0].page_content)
