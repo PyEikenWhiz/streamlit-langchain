@@ -3,6 +3,7 @@ from langchain.vectorstores import Chroma
 from langchain.indexes import VectorstoreIndexCreator
 from langchain.document_loaders import TextLoader
 import streamlit as st
+import sqlite3
 
 
 long_text = """
@@ -49,12 +50,17 @@ embeddings = HuggingFaceEmbeddings(model_name="intfloat/multilingual-e5-small")
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 from langchain import HuggingFacePipeline
 
-tokenizer = AutoTokenizer.from_pretrained("rinna/japanese-gpt2-small", use_fast=False)
-tokenizer.do_lower_case = True  # due to some bug of tokenizer config loading
-model_ = AutoModelForCausalLM.from_pretrained("rinna/japanese-gpt2-small")
-pipe = pipeline("text-generation", model=model_, tokenizer=tokenizer, max_new_tokens=64)
+# Function to load the language model
+@st.cache_resource  # This decorator caches the result for better performance
+def load_language_model():
+    model_id = "rinna/japanese-gpt2-small"
+    tokenizer = AutoTokenizer.from_pretrained(model_id, use_fast=False)
+    tokenizer.do_lower_case = True  # due to some bug of tokenizer config loading
+    model_ = AutoModelForCausalLM.from_pretrained(model_id)
+    pipe = pipeline("text-generation", model=model_, tokenizer=tokenizer, max_new_tokens=64)
+    return HuggingFacePipeline(pipeline=pipe)
 
-model = HuggingFacePipeline(pipeline=pipe) 
+model = load_language_model()
 
 index = VectorstoreIndexCreator(
     vectorstore_cls=Chroma, # Default
