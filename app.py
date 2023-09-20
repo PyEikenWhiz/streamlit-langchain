@@ -1,13 +1,8 @@
+from langchain.chains import RetrievalQA
+from langchain.document_loaders import TextLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Chroma
-from langchain.indexes import VectorstoreIndexCreator
-from langchain.document_loaders import TextLoader
 import streamlit as st
-
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-import sqlite3
 
 long_text = """
 GPT-4は、OpenAIが開発したAI技術であるGPTシリーズの第4世代目のモデルです。
@@ -33,31 +28,38 @@ GPT-4は、インターネット上の大量のテキストデータを学習し
 適切な方法で利用することが重要です。
 """
 print(len(long_text))
+with open("./long_text.txt", "w") as f:
+    f.write(long_text)
+    f.close()
 
-text_splitter = CharacterTextSplitter(
-    separator = "\n\n",
-    chunk_size = 100,
-    chunk_overlap = 0,
-    length_function = len,
-)
+loader = TextLoader('./long_text.txt')
 
-texts = text_splitter.split_text(long_text)
-#print(texts)
+documents = loader.load()
+text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+texts = text_splitter.split_documents(documents)
 
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.embeddings import HuggingFaceEmbeddings #sentence-transformers
 embeddings = HuggingFaceEmbeddings(model_name="intfloat/multilingual-e5-small")
 
-docsearch = Chroma.from_texts(texts, embeddings)
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+from langchain import HuggingFacePipeline
 
-query = "Q1. インターネット上の何のデータを使って、学習しているの？"
-st.write(f"\n\n{query}")
-docs = docsearch.similarity_search(query)
-print(docs[0].page_content)
-st.write(docs[0].page_content)
+# Function to load the language model
+@st.cache_resource  # This decorator caches the result for better performance
+def load_language_model():
+    model_id = "rinna/japanese-gpt2-small"
+    tokenizer = AutoTokenizer.from_pretrained(model_id, use_fast=False)
+    tokenizer.do_lower_case = True  # due to some bug of tokenizer config loading
+    model_ = AutoModelForCausalLM.from_pretrained(model_id)
+    pipe = pipeline("text-generation", model=model_, tokenizer=tokenizer, max_new_tokens=64)
+    return HuggingFacePipeline(pipeline=pipe)
 
+model = load_language_model()
 
-query = "Q2. GPT4は第何世代のモデル？"
-st.write(f"\n\n{query}")
-docs = docsearch.similarity_search(query)
-print(docs[0].page_content)
-st.write(docs[0].page_content)
+docsearch = Chroma.from_documents(texts, embeddings)
+qa = RetrievalQA.from_chain_type(llm=model, chain_type="stuff", retriever=docsearch.as_retriever())
+
+query = "GPT-4とは？"
+st.write(query)
+print(qa.run(query))
+st.write(qa.run(query))
